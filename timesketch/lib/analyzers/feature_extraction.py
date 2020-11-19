@@ -380,7 +380,7 @@ class FeatureExtractionSketchPlugin(interface.BaseSketchAnalyzer):
                 if ioc_db and store_as_current_val:
                     cur_ioc = event.source.get('ioc')
                     cur_ioc_ctx = event.source.get('ioc_context')
-                    ioc, ctx = check_ioc(
+                    ioc, ctx = _check_ioc(
                         ioc_db,
                         new_value,
                         cur_ioc,
@@ -412,7 +412,7 @@ class FeatureExtractionSketchPlugin(interface.BaseSketchAnalyzer):
             if ioc_db:
                 cur_ioc = event.source.get('ioc')
                 cur_ioc_ctx = event.source.get('ioc_context')
-                ioc, ctx = check_ioc(
+                ioc, ctx = _check_ioc(
                     ioc_db,
                     new_value,
                     cur_ioc,
