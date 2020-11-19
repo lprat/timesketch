@@ -201,7 +201,7 @@ class TestFeatureExtractionPlugin(BaseTest):
             'test_index', 1)
         ioc_db = {
             'a': None,
-            'b': 'b|source:http://b'
+            'b': 'b|source:http://b',
             'c': 'c|source:http://c'
             }
         data = ['a', 'c', 'd', 'e']
@@ -213,7 +213,6 @@ class TestFeatureExtractionPlugin(BaseTest):
             data=data,
             cur_ioc=cur_ioc,
             cur_ctx= cur_ctx)
-        new_val.sort()
 
         self.assertEqual(ioc, ['a', 'c'])
         self.assertEqual(
@@ -222,10 +221,10 @@ class TestFeatureExtractionPlugin(BaseTest):
                 'c|source:http://c'
             ]
             )
-            
+
         ioc_db = {
             'a': None,
-            'b': 'b|source:http://b'
+            'b': 'b|source:http://b',
             'c': 'c|source:http://c'
             }
         data = ['a', 'c', 'd', 'e']
@@ -237,7 +236,6 @@ class TestFeatureExtractionPlugin(BaseTest):
             data=data,
             cur_ioc=cur_ioc,
             cur_ctx= cur_ctx)
-        new_val.sort()
 
         self.assertEqual(ioc, ['a', 'c'])
         self.assertEqual(
@@ -246,10 +244,10 @@ class TestFeatureExtractionPlugin(BaseTest):
                 'c|source:http://c'
             ]
             )
-            
+
         ioc_db = {
             'a': None,
-            'b': 'b|source:http://b'
+            'b': 'b|source:http://b',
             'c': 'c|source:http://c'
             }
         data = ['a', 'c', 'd', 'e']
@@ -261,7 +259,6 @@ class TestFeatureExtractionPlugin(BaseTest):
             data=data,
             cur_ioc=cur_ioc,
             cur_ctx= cur_ctx)
-        new_val.sort()
 
         self.assertEqual(ioc, ['a', 'c'])
         self.assertEqual(
@@ -273,7 +270,7 @@ class TestFeatureExtractionPlugin(BaseTest):
 
         ioc_db = {
             'a': None,
-            'b': 'b|source:http://b'
+            'b': 'b|source:http://b',
             'c': 'c|source:http://c'
             }
         data = "a,b,c,d,e"
@@ -285,7 +282,6 @@ class TestFeatureExtractionPlugin(BaseTest):
             data=data,
             cur_ioc=cur_ioc,
             cur_ctx= cur_ctx)
-        new_val.sort()
 
         self.assertEqual(ioc, ['a', 'c'])
         self.assertEqual(
