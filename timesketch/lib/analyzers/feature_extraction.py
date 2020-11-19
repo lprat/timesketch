@@ -390,9 +390,9 @@ class FeatureExtractionSketchPlugin(interface.BaseSketchAnalyzer):
                         cur_ioc,
                         cur_ioc_ctx,
                         )
-                    if ioc:
+                    if ioc and ioc != cur_ioc:
                         event.add_attributes({field_ioc: ioc})
-                        if ctx:
+                        if ctx and ctx != cur_ioc_ctx:
                             event.add_attributes({field_ioc_ctx: ctx})
                         event.add_tags(ioc_tags)
                 continue
@@ -424,11 +424,11 @@ class FeatureExtractionSketchPlugin(interface.BaseSketchAnalyzer):
                     cur_ioc,
                     cur_ioc_ctx,
                     )
-                if ioc:
+                if ioc and ioc != cur_ioc:
                     event.add_attributes({field_ioc: ioc})
-                    if ctx:
+                    if ctx and ctx != cur_ioc_ctx:
                         event.add_attributes({field_ioc_ctx: ctx})
-                    event.add_tags(ioc_tags)
+                    tags += ioc_tags
             event.add_attributes({store_as: new_value})
             event.add_emojis(emojis_to_add)
             event.add_tags(tags)
