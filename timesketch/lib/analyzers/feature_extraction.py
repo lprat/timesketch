@@ -392,7 +392,9 @@ class FeatureExtractionSketchPlugin(interface.BaseSketchAnalyzer):
                         )
                     if ioc:
                         event.add_attributes({field_ioc: ioc})
-                        event.add_attributes({field_ioc_ctx: ctx})
+                        if ctx:
+                            event.add_attributes({field_ioc_ctx: ctx})
+                        event.add_tags(ioc_tags)
                 continue
             result = list(set(result))
 
@@ -424,7 +426,8 @@ class FeatureExtractionSketchPlugin(interface.BaseSketchAnalyzer):
                     )
                 if ioc:
                     event.add_attributes({field_ioc: ioc})
-                    event.add_attributes({field_ioc_ctx: ctx})
+                    if ctx:
+                            event.add_attributes({field_ioc_ctx: ctx})
                     event.add_tags(ioc_tags)
             event.add_attributes({store_as: new_value})
             event.add_emojis(emojis_to_add)
