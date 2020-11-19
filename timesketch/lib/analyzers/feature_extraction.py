@@ -348,7 +348,7 @@ class FeatureExtractionSketchPlugin(interface.BaseSketchAnalyzer):
                     if '|' in ioc:
                         ioc_ctx = ioc.split('|')
                         if len(ioc_ctx) == 2:
-                            ioc_db[ioc_ctx[0]] = ioc_ctx[1]
+                            ioc_db[ioc_ctx[0]] = ioc
                             continue
                     ioc_db[ioc] = None
 
