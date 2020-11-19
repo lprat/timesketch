@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 import logging
 import re
 
+import os
+
 import six
 
 from timesketch.lib import emojis
@@ -343,7 +345,7 @@ class FeatureExtractionSketchPlugin(interface.BaseSketchAnalyzer):
         ioc_path = config.get('ioc_path')
         ioc_db = {}
         if ioc_path and os.path.isfile(ioc_path):
-            with open(path_file_ioc) as ioc_file:
+            with open(ioc_path) as ioc_file:
                 for ioc in ioc_file.readlines():
                     if '|' in ioc:
                         ioc_ctx = ioc.split('|')
@@ -380,7 +382,7 @@ class FeatureExtractionSketchPlugin(interface.BaseSketchAnalyzer):
                 if ioc_db and store_as_current_val:
                     cur_ioc = event.source.get('ioc')
                     cur_ioc_ctx = event.source.get('ioc_context')
-                    ioc, ctx = _check_ioc(
+                    ioc, ctx = self._check_ioc(
                         ioc_db,
                         new_value,
                         cur_ioc,
@@ -412,7 +414,7 @@ class FeatureExtractionSketchPlugin(interface.BaseSketchAnalyzer):
             if ioc_db:
                 cur_ioc = event.source.get('ioc')
                 cur_ioc_ctx = event.source.get('ioc_context')
-                ioc, ctx = _check_ioc(
+                ioc, ctx = self._check_ioc(
                     ioc_db,
                     new_value,
                     cur_ioc,
