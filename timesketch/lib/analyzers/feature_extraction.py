@@ -142,6 +142,22 @@ class FeatureExtractionSketchPlugin(interface.BaseSketchAnalyzer):
             'default_value': False,
             'optional': True,
         },
+        {
+            'name': 'ioc_path',
+            'type': 'ts-dynamic-form-text-input',
+            'label': 'Path to file contains IOC line by line',
+            'placeholder': 'IOC db',
+            'default_value': '',
+            'optional': True,
+        },
+        {
+            'name': 'ioc_tags',
+            'type': 'ts-dynamic-form-multi-select-input',
+            'label': 'Tag to add to events if ioc matches',
+            'placeholder': 'Tag IOC to add to events',
+            'default_value': '',
+            'optional': True,
+        },
     ]
 
 
@@ -177,6 +193,43 @@ class FeatureExtractionSketchPlugin(interface.BaseSketchAnalyzer):
                 return_strings.append(feature_string)
 
         return ', '.join(return_strings)
+
+    @staticmethod
+    def _check_ioc(
+            ioc_db,
+            data,
+            cur_ioc,
+            cur_ctx):
+        """Returns the IOC values found in data and merged with all ioc.
+
+        Args:
+            ioc_db: IOC  db (type dict).
+            data: extracted data (type list or string).
+            cur_ioc: IOC already extracted (type dict).
+            cur_ctx: IOC context already extracted (type dict).
+
+        Returns:
+            ioc: IOC found (type list)
+            ioc_ctx: IOC context (type list)
+        """
+        if not isinstance(cur_ioc, (list, tuple)):
+            cur_ioc = []
+        if not isinstance(cur_ctx, (list, tuple)):
+            cur_ctx = []
+        if isinstance(data, six.text_type):
+            data = data.split(',')
+            ioc = list((set(data) & set(ioc_db.keys())) - set(cur_ioc))
+            cur_ctx += [ioc_db[x] for x in ioc if ioc_db[x]]
+            if cur_ioc:
+                return sorted(cur_ioc + ioc), sorted(cur_ctx)
+            return sorted(ioc), sorted(cur_ctx)
+        if isinstance(data, (list, tuple)):
+            ioc = list((set(data) & set(ioc_db.keys())) - set(cur_ioc))
+            cur_ctx += [ioc_db[x] for x in ioc if ioc_db[x]]
+            if cur_ioc:
+                return sorted(cur_ioc + ioc), sorted(cur_ctx)
+            return sorted(ioc), sorted(cur_ctx)
+        return None, None
 
     @staticmethod
     def _get_attribute_value(
@@ -255,6 +308,7 @@ class FeatureExtractionSketchPlugin(interface.BaseSketchAnalyzer):
             return ''
 
         tags = config.get('tags', [])
+        ioc_tags = config.get('ioc_tags', [])
 
         expression_string = config.get('re')
         expression_flags = config.get('re_flags')
@@ -285,8 +339,20 @@ class FeatureExtractionSketchPlugin(interface.BaseSketchAnalyzer):
 
         emoji_names = config.get('emojis', [])
         emojis_to_add = [emojis.get_emoji(x) for x in emoji_names]
+        
+        ioc_path = config.get('ioc_path')
+        ioc_db = {}
+        if ioc_path and os.path.isfile(ioc_path):
+            with open(path_file_ioc) as ioc_file:
+                for ioc in ioc_file.readlines():
+                    if '|' in ioc:
+                        ioc_ctx = ioc.split('|')
+                        if len(ioc_ctx) == 2:
+                            ioc_db[ioc_ctx[0]] = ioc_ctx[1]
+                            continue
+                    ioc_db[ioc] = None
 
-        return_fields = [attribute, store_as]
+        return_fields = [attribute, store_as, 'ioc', 'ioc_context']
 
         events = self.event_stream(
             query_string=query, query_dsl=query_dsl,
@@ -307,8 +373,22 @@ class FeatureExtractionSketchPlugin(interface.BaseSketchAnalyzer):
             if not attribute_value:
                 continue
 
+            store_as_current_val = event.source.get(store_as)
+
             result = expression.findall(attribute_value)
             if not result:
+                if ioc_db and store_as_current_val:
+                    cur_ioc = event.source.get('ioc')
+                    cur_ioc_ctx = event.source.get('ioc_context')
+                    ioc, ctx = check_ioc(
+                        ioc_db,
+                        new_value,
+                        cur_ioc,
+                        cur_ioc_ctx,
+                        )
+                    if ioc:
+                        event.add_ioc(ioc, ctx)
+                        event.add_tags(ioc_tags)
                 continue
             result = list(set(result))
 
@@ -329,6 +409,18 @@ class FeatureExtractionSketchPlugin(interface.BaseSketchAnalyzer):
                 )
             if not new_value:
                 continue
+            if ioc_db:
+                cur_ioc = event.source.get('ioc')
+                cur_ioc_ctx = event.source.get('ioc_context')
+                ioc, ctx = check_ioc(
+                    ioc_db,
+                    new_value,
+                    cur_ioc,
+                    cur_ioc_ctx,
+                    )
+                if ioc:
+                    event.add_ioc(ioc, ctx)
+                    event.add_tags(ioc_tags)
             event.add_attributes({store_as: new_value})
             event.add_emojis(emojis_to_add)
             event.add_tags(tags)
