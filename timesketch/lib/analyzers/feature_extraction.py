@@ -154,7 +154,7 @@ class FeatureExtractionSketchPlugin(interface.BaseSketchAnalyzer):
         },
         {
             'name': 'ioc_tags',
-            'type': 'ts-dynamic-form-multi-select-input',
+            'type': 'ts-dynamic-form-text-input',
             'label': 'Tag to add to events if ioc matches',
             'placeholder': 'Tag IOC to add to events',
             'default_value': '',
@@ -310,7 +310,6 @@ class FeatureExtractionSketchPlugin(interface.BaseSketchAnalyzer):
             return ''
 
         tags = config.get('tags', [])
-        ioc_tags = config.get('ioc_tags', [])
 
         expression_string = config.get('re')
         expression_flags = config.get('re_flags')
@@ -342,6 +341,7 @@ class FeatureExtractionSketchPlugin(interface.BaseSketchAnalyzer):
         emoji_names = config.get('emojis', [])
         emojis_to_add = [emojis.get_emoji(x) for x in emoji_names]
         
+        ioc_tags = config.get('ioc_tags', [])
         ioc_path = config.get('ioc_path')
         ioc_db = {}
         field_ioc = 'ioc'
@@ -427,7 +427,7 @@ class FeatureExtractionSketchPlugin(interface.BaseSketchAnalyzer):
                 if ioc:
                     event.add_attributes({field_ioc: ioc})
                     if ctx:
-                            event.add_attributes({field_ioc_ctx: ctx})
+                        event.add_attributes({field_ioc_ctx: ctx})
                     event.add_tags(ioc_tags)
             event.add_attributes({store_as: new_value})
             event.add_emojis(emojis_to_add)
